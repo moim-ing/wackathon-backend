@@ -5,6 +5,8 @@ import java.time.LocalDateTime
 
 data class SessionCreateRequest(
     val videoId: String,
+    val sessionTitle: String,
+    val videoKey: String,
 )
 
 data class SessionCreateResponse(

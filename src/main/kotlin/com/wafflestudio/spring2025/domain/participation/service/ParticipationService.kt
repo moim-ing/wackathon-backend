@@ -75,7 +75,7 @@ class ParticipationService(
             id = clazz.id!!, // classId
             title = clazz.title,
             sessionId = session.id!!,
-            sessionTitle = "%d주차".format(session.id),
+            sessionTitle = session.title,
             videoId = session.videoId,
             verifiedAt = Instant.ofEpochMilli(recordedAt),
         )
