@@ -22,15 +22,18 @@ class S3Service(
         contentType: String?,
     ): String {
         val key = generateKey(prefix, filename)
+
         val req =
             PutObjectRequest
                 .builder()
                 .bucket(awsProperties.s3Bucket)
                 .key(key)
-                .contentType(contentType)
+                .contentType(contentType ?: "application/octet-stream")
                 .build()
 
-        s3Client.putObject(req, RequestBody.fromInputStream(input, input.available().toLong()))
+        // ✅ available() 대신 안전하게 전체를 읽어서 업로드
+        val bytes = input.readBytes()
+        s3Client.putObject(req, RequestBody.fromBytes(bytes))
         return key
     }
 
@@ -38,6 +41,7 @@ class S3Service(
         prefix: String,
         filename: String,
     ): String {
+        // 운영에서 key가 깨지지 않게 filename을 안전하게 인코딩
         val safe = URLEncoder.encode(filename, StandardCharsets.UTF_8.toString())
         return "%s/%s-%s".format(prefix.trimEnd('/'), UUID.randomUUID().toString(), safe)
     }

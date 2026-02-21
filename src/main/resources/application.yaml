@@ -40,3 +40,11 @@ cors:
 
 server:
   forward-headers-strategy: framework
+
+aws:
+  region: ap-northeast-2
+  s3Bucket: wackathon-audio-dev
+
+fastapi:
+  baseUrl: http://localhost:8000
+  timeoutSeconds: 10
