@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.domain.sessions.controller
 
+import com.wafflestudio.spring2025.domain.auth.AuthRequired
 import com.wafflestudio.spring2025.domain.auth.LoggedInUser
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionCreateRequest
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionCreateResponse
@@ -44,6 +45,7 @@ class SessionController(
     }
 
     @PatchMapping("/{sessionId}/status")
+    @AuthRequired
     fun updateStatus(
         @PathVariable classId: Long,
         @PathVariable sessionId: Long,
