@@ -5,15 +5,10 @@ import com.wafflestudio.spring2025.domain.auth.exception.AuthValidationException
 import com.wafflestudio.spring2025.domain.auth.exception.AuthenticationRequiredException
 import com.wafflestudio.spring2025.domain.user.dto.core.UserDto
 import com.wafflestudio.spring2025.domain.user.exception.EmailChangeForbiddenException
-import com.wafflestudio.spring2025.domain.user.exception.UserErrorCode
-import com.wafflestudio.spring2025.domain.user.exception.UserValidationException
 import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.domain.user.repository.UserRepository
 import org.mindrot.jbcrypt.BCrypt
 import org.springframework.stereotype.Service
-import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 
 @Service
 class UserService(
