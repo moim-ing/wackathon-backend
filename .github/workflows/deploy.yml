@@ -56,6 +56,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
+            if [ ! -d ~/wackathon-backend/.git ]; then
+              git clone https://github.com/moim-ing/wackathon-backend.git ~/wackathon-backend
+            fi
             cd ~/wackathon-backend
             cat > .env <<'EOF'
             DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
@@ -63,4 +66,14 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
             EOF
+            cat > deploy.sh <<'BASH'
+            #!/bin/bash
+            set -e
+            cd ~/wackathon-backend
+            git pull origin main
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
+            BASH
+            chmod +x deploy.sh
             sh deploy.sh
