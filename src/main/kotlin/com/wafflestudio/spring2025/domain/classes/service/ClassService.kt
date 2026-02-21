@@ -73,7 +73,7 @@ class ClassService(
         return ClassDetailResponse(
             clazz = classInfo,
             sessions = sessionDtos,
-            currentSessions = currentSession,
+            currentSession = currentSession,
         )
     }
 
