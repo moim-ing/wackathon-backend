@@ -56,7 +56,7 @@ class ClassService(
                 SessionInfoResponse(
                     sessionId = session.id!!,
                     sessionTitle = "${session.id}", // no explicit title in schema; using id as placeholder
-                    videoId = session.videoUrl,
+                    videoId = session.videoId,
                     status = session.status,
                     createdAt = session.createdAt ?: java.time.Instant.EPOCH,
                     totalParticipants = count,

@@ -3,8 +3,10 @@ package com.wafflestudio.spring2025.domain.participation.service
 import com.wafflestudio.spring2025.domain.classes.repository.ClassRepository
 import com.wafflestudio.spring2025.domain.participation.dto.ParticipationCreateRequest
 import com.wafflestudio.spring2025.domain.participation.dto.ParticipationCreateResponse
+import com.wafflestudio.spring2025.domain.participation.dto.ParticipationVerifyResponse
 import com.wafflestudio.spring2025.domain.participation.entity.Participation
 import com.wafflestudio.spring2025.domain.participation.repository.ParticipationRepository
+import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.infra.S3Service
@@ -47,8 +49,8 @@ class ParticipationService(
             session.referenceS3Key
                 ?: throw ResponseStatusException(HttpStatus.CONFLICT, "Session reference not ready")
 
-        if (session.status != "READY") {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Session is not READY")
+        if (session.status != SessionStatus.ACTIVE) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Session is not ACTIVE")
         }
 
         // 3) 학생 음성 S3 업로드 → recording_key
@@ -99,5 +101,28 @@ class ParticipationService(
         return ParticipationCreateResponse(id = saved.id!!)
     }
 
-    // 기존 stub은 이제 필요 없으면 삭제해도 됨
+    fun verifyAudioAndRespond(
+        audioFile: String,
+        recordedAt: Long,
+    ): ParticipationVerifyResponse {
+        val session =
+            sessionRepository
+                .findAll()
+                .firstOrNull { it.videoId == audioFile }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found")
+
+        val clazz =
+            classRepository.findById(session.classId).orElseThrow {
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found")
+            }
+
+        return ParticipationVerifyResponse(
+            id = clazz.id!!,
+            title = clazz.title,
+            sessionId = session.id!!,
+            sessionTitle = "%d주차".format(session.id),
+            videoId = session.videoId,
+            verifiedAt = Instant.ofEpochMilli(recordedAt),
+        )
+    }
 }
