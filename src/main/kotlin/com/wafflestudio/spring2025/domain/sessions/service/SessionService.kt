@@ -58,7 +58,6 @@ class SessionService(
 
         return SessionCreateResponse(
             sessionId = saved.id!!,
-            sessionTitle = "%d주차".format(saved.id),
         )
     }
 
