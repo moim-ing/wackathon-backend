@@ -8,13 +8,13 @@ import com.wafflestudio.spring2025.domain.classes.dto.MyClassSummary
 import com.wafflestudio.spring2025.domain.classes.dto.MyClassesResponse
 import com.wafflestudio.spring2025.domain.classes.dto.SessionInfoResponse
 import com.wafflestudio.spring2025.domain.classes.entity.Class
+import com.wafflestudio.spring2025.domain.classes.exception.ClassNotFoundException
+import com.wafflestudio.spring2025.domain.classes.exception.ClassUserNotFoundException
 import com.wafflestudio.spring2025.domain.classes.repository.ClassRepository
 import com.wafflestudio.spring2025.domain.participation.repository.ParticipationRepository
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.repository.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class ClassService(
@@ -30,7 +30,7 @@ class ClassService(
         // verify user exists
         val userExists = userRepository.existsById(userId)
         if (!userExists) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
+            throw ClassUserNotFoundException()
         }
 
         val clazz =
@@ -45,9 +45,7 @@ class ClassService(
 
     fun getClassDetail(classId: Long): ClassDetailResponse {
         val clazz =
-            classRepository.findById(classId).orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found")
-            }
+            classRepository.findById(classId).orElseThrow { ClassNotFoundException() }
 
         val sessions = sessionRepository.findByClassId(classId)
         val sessionDtos =
@@ -82,7 +80,7 @@ class ClassService(
     fun getMyClasses(userId: Long): MyClassesResponse {
         val userExists = userRepository.existsById(userId)
         if (!userExists) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
+            throw ClassUserNotFoundException()
         }
 
         val classes =

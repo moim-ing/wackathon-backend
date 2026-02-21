@@ -1,6 +1,7 @@
 package com.wafflestudio.spring2025.domain.classes.controller
 
 import com.wafflestudio.spring2025.domain.auth.LoggedInUser
+import com.wafflestudio.spring2025.domain.auth.exception.AuthenticationRequiredException
 import com.wafflestudio.spring2025.domain.classes.dto.ClassCreateRequest
 import com.wafflestudio.spring2025.domain.classes.dto.ClassCreateResponse
 import com.wafflestudio.spring2025.domain.classes.dto.ClassDetailResponse
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/classes")
@@ -26,7 +26,7 @@ class ClassController(
         @RequestBody request: ClassCreateRequest,
         @LoggedInUser user: User?,
     ): ResponseEntity<ClassCreateResponse> {
-        val uid = user?.id ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        val uid = user?.id ?: throw AuthenticationRequiredException()
         val response = classService.createClass(request, uid)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
