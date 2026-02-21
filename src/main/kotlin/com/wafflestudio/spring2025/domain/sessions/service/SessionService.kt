@@ -15,6 +15,7 @@ import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
 import com.wafflestudio.spring2025.integration.fastapi.dto.ExtractMusicRequest
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -28,6 +29,8 @@ class SessionService(
     private val classRepository: ClassRepository,
     private val fastApiClient: FastApiClient,
 ) {
+    private val logger = LoggerFactory.getLogger(SessionService::class.java)
+
     fun createSession(
         classId: Long,
         request: SessionCreateRequest,
@@ -60,6 +63,7 @@ class SessionService(
                 sourceKey = sourceKeyFromFastApi, // ✅ 프론트에 내려줌
             )
         } catch (ex: Exception) {
+            logger.error("FastAPI extractMusic failed for sessionId=${saved.id}: ${ex.message}", ex)
             saved.status = SessionStatus.CLOSED
             sessionRepository.save(saved)
             throw ResponseStatusException(
