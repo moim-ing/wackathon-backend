@@ -3,6 +3,7 @@ package com.wafflestudio.spring2025.domain.auth.controller
 import com.wafflestudio.spring2025.domain.auth.dto.LoginRequest
 import com.wafflestudio.spring2025.domain.auth.dto.LoginResponse
 import com.wafflestudio.spring2025.domain.auth.dto.SignupRequest
+import com.wafflestudio.spring2025.domain.auth.dto.SignupResponse
 import com.wafflestudio.spring2025.domain.auth.service.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -24,26 +25,26 @@ class AuthController(
 ) {
     @Operation(
         summary = "이메일 회원가입",
-        description = "새로운 사용자를 등록하고 인증 이메일을 발송합니다. 이메일 인증 후 가입이 완료됩니다.",
+        description = "새로운 사용자를 등록합니다.",
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "204", description = "인증 이메일 발송 성공"),
+            ApiResponse(responseCode = "201", description = "회원가입 성공, JWT 토큰 반환"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (유효하지 않은 email/password/name)"),
             ApiResponse(responseCode = "409", description = "이미 존재하는 email"),
-            ApiResponse(responseCode = "503", description = "이메일 서비스 장애"),
         ],
     )
     @PostMapping("/signup")
     fun signup(
         @RequestBody signupRequest: SignupRequest,
-    ): ResponseEntity<Void> {
-        authService.signup(
-            email = signupRequest.email,
-            name = signupRequest.name,
-            password = signupRequest.password,
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).build()
+    ): ResponseEntity<SignupResponse> {
+        val token =
+            authService.signup(
+                email = signupRequest.email,
+                name = signupRequest.name,
+                password = signupRequest.password,
+            )
+        return ResponseEntity.status(HttpStatus.CREATED).body(SignupResponse(token = token))
     }
 
     @Operation(summary = "로그인", description = "email로 로그인하여 JWT 토큰을 발급받습니다")

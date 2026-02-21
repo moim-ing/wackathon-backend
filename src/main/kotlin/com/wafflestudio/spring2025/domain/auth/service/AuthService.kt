@@ -1,10 +1,10 @@
 package com.wafflestudio.spring2025.domain.auth.service
 
 import com.wafflestudio.spring2025.domain.auth.JwtTokenProvider
+import com.wafflestudio.spring2025.domain.auth.exception.AccountAlreadyExistsException
 import com.wafflestudio.spring2025.domain.auth.exception.AuthErrorCode
 import com.wafflestudio.spring2025.domain.auth.exception.AuthValidationException
 import com.wafflestudio.spring2025.domain.auth.exception.LoginFailedException
-import com.wafflestudio.spring2025.domain.user.dto.core.UserDto
 import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.domain.user.repository.UserRepository
 import org.mindrot.jbcrypt.BCrypt
@@ -38,10 +38,13 @@ class AuthService(
         email: String,
         name: String,
         password: String,
-    ): UserDto {
+    ): String {
         validateEmail(email)
         validateName(name)
         validatePassword(password)
+        if (userRepository.existsByEmail(email)) {
+            throw AccountAlreadyExistsException(AuthErrorCode.EMAIL_ACCOUNT_ALREADY_EXIST)
+        }
 
         // 이메일 인증 로직으로 인해 실제로 사용되지는 않음. (테스트용 함수)
 
@@ -54,11 +57,7 @@ class AuthService(
                 ),
             )
 
-        return UserDto(
-            id = user.id!!,
-            email = user.email,
-            name = user.name,
-        )
+        return jwtTokenProvider.createToken(user.id!!)
     }
 
     private fun validateEmail(email: String) {
