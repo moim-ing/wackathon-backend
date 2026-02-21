@@ -13,9 +13,15 @@ class Session(
     var classId: Long,
     var videoUrl: String,
     var referenceS3Key: String? = null,
-    var status: String = "PREPARING",
+    var status: SessionStatus = SessionStatus.ACTIVE,
     @CreatedDate
     var createdAt: Instant? = null,
     @LastModifiedDate
     var updatedAt: Instant? = null,
 )
+
+enum class SessionStatus {
+    ACTIVE,
+    PAUSED,
+    CLOSED,
+}

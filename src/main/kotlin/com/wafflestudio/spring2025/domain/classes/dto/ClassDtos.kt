@@ -1,6 +1,7 @@
 package com.wafflestudio.spring2025.domain.classes.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import java.time.Instant
 
 // Request
@@ -29,7 +30,7 @@ data class SessionInfoResponse(
     val sessionId: Long,
     val sessionTitle: String,
     val videoId: String,
-    val status: String,
+    val status: SessionStatus,
     val createdAt: Instant,
     val totalParticipants: Int,
 )
