@@ -108,7 +108,6 @@ class SessionService(
         val saved = sessionRepository.save(session)
         return SessionStatusResponse(
             currentStatus = saved.status,
-            updatedAt = LocalDateTime.ofInstant(saved.updatedAt ?: java.time.Instant.EPOCH, ZoneId.of("UTC")),
         )
     }
 }

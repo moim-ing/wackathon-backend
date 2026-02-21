@@ -24,9 +24,10 @@ data class SessionDetailResponse(
 
 data class SessionStatusUpdateRequest(
     val status: SessionStatus,
+    val currentTime: Int,
+    val updatedAt: Long,
 )
 
 data class SessionStatusResponse(
     val currentStatus: SessionStatus,
-    val updatedAt: LocalDateTime,
 )
