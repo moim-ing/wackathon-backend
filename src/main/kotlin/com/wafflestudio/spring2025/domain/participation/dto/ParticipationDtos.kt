@@ -26,3 +26,8 @@ data class ParticipationVerifyResponse(
     val videoId: String,
     val verifiedAt: Instant,
 )
+
+data class ParticipationVerifyRequest(
+    val audioFile: String,
+    val recordedAt: Long,
+)

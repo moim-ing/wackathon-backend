@@ -7,13 +7,11 @@ import com.wafflestudio.spring2025.domain.participation.repository.Participation
 import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.model.User
-import com.wafflestudio.spring2025.infra.S3Service
 import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
 import com.wafflestudio.spring2025.integration.fastapi.dto.CompareRequest
 import kotlinx.coroutines.runBlocking
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 
@@ -22,7 +20,6 @@ class ParticipationService(
     private val participationRepository: ParticipationRepository,
     private val sessionRepository: SessionRepository,
     private val classRepository: ClassRepository,
-    private val s3Service: S3Service,
     private val fastApiClient: FastApiClient,
 ) {
     /**
@@ -36,12 +33,14 @@ class ParticipationService(
      * 6) ParticipationVerifyResponse 반환
      */
     fun verifyAttendance(
-        sessionId: Long,
-        audioFile: MultipartFile,
+        recordingKey: String,
         recordedAt: Long,
-        offsetMilli: Long,
         user: User?,
     ): ParticipationVerifyResponse {
+        val sessionId =
+            extractSessionIdFromRecordingKey(recordingKey)
+                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid audioFile")
+
         val session =
             sessionRepository.findById(sessionId).orElseThrow {
                 ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found")
@@ -56,15 +55,6 @@ class ParticipationService(
             throw ResponseStatusException(HttpStatus.CONFLICT, "Session is not ACTIVE")
         }
 
-        // 녹음 파일 업로드
-        val recordingKey =
-            s3Service.uploadInputStream(
-                prefix = "recordings/session-$sessionId",
-                filename = audioFile.originalFilename ?: "recording.wav",
-                input = audioFile.inputStream,
-                contentType = audioFile.contentType ?: "audio/wav",
-            )
-
         // FastAPI compare 호출 (반드시 소통)
         val compareResp =
             try {
@@ -73,7 +63,7 @@ class ParticipationService(
                         CompareRequest(
                             source_key = sourceKey,
                             recording_key = recordingKey,
-                            offset_milli = offsetMilli,
+                            offset_milli = 0,
                         ),
                     )
                 }
@@ -115,5 +105,13 @@ class ParticipationService(
             videoId = session.videoId,
             verifiedAt = Instant.ofEpochMilli(recordedAt), // 명세대로 recordedAt을 응답에 넣음
         )
+    }
+
+    private fun extractSessionIdFromRecordingKey(recordingKey: String): Long? {
+        val match =
+            Regex("""recordings/session-(\d+)/""")
+                .find(recordingKey)
+                ?: return null
+        return match.groupValues[1].toLongOrNull()
     }
 }
