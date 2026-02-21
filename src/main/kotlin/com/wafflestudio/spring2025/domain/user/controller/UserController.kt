@@ -37,7 +37,7 @@ class UserController(
     @GetMapping("/me")
     fun me(
         @Parameter(hidden = true) @LoggedInUser user: User,
-    ): ResponseEntity<GetMeResponse> = ResponseEntity.ok(userService.me(user))
+    ): ResponseEntity<GetMeResponse> = ResponseEntity.ok(userService.getMe(user))
 
     @AuthRequired
     @PatchMapping("/me")
