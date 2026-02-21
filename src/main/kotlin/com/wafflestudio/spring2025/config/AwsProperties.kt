@@ -9,4 +9,5 @@ import org.springframework.validation.annotation.Validated
 data class AwsProperties(
     @NotBlank val region: String = "ap-northeast-2",
     @NotBlank val s3Bucket: String,
+    val presignExpireSeconds: Long = 1800,
 )

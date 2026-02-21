@@ -12,6 +12,7 @@ import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
 import com.wafflestudio.spring2025.integration.fastapi.dto.CompareRequest
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -21,30 +22,26 @@ class ParticipationService(
     private val classRepository: ClassRepository,
     private val fastApiClient: FastApiClient,
 ) {
+    private val logger = LoggerFactory.getLogger(ParticipationService::class.java)
+
     fun verify(
-        audioFile: String,
-        recordingKey: String,
-        offsetMilli: Long,
+        sessionId: Long,
+        key: String,
         recordedAt: Long,
     ): ParticipationVerifyResponse {
         // 요청 검증 (400)
-        if (audioFile.isBlank()) {
-            throw ParticipationValidationException(ParticipationErrorCode.WRONG_GUEST_NAME)
-        }
-        if (recordingKey.isBlank()) {
+        if (key.isBlank()) {
             throw ParticipationValidationException(ParticipationErrorCode.INVALID_RECORDING_KEY)
-        }
-        if (offsetMilli < 0) {
-            throw ParticipationValidationException(ParticipationErrorCode.INVALID_OFFSET_MILLI)
         }
         if (recordedAt <= 0) {
             throw ParticipationValidationException(ParticipationErrorCode.INVALID_REGISTRATION_WINDOW)
         }
 
-        // audioFile == videoId로 세션 찾기 (404)
+        // sessionId로 세션 찾기 (404)
         val session =
-            sessionRepository.findByVideoId(audioFile)
-                ?: throw SessionNotFoundException()
+            sessionRepository.findById(sessionId).orElseThrow {
+                SessionNotFoundException()
+            }
 
         // 수업 조회 (404)
         val clazz =
@@ -54,12 +51,17 @@ class ParticipationService(
 
         val sourceKey = session.sourceKey ?: throw SourceKeyNotReadyException()
 
+        if (session.playStartTime == null) {
+            logger.warn("sessionId=${session.id} has no playStartTime; offsetMilli will be calculated from epoch 0")
+        }
+        val offsetMilli = recordedAt - (session.playStartTime?.toEpochMilli() ?: 0L)
+
         val compareResp =
             runBlocking {
                 fastApiClient.compare(
                     CompareRequest(
                         source_key = sourceKey,
-                        recording_key = recordingKey,
+                        recording_key = key,
                         offset_milli = offsetMilli,
                     ),
                 )

@@ -22,6 +22,7 @@ import com.wafflestudio.spring2025.integration.fastapi.dto.ExtractMusicRequest
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -120,6 +121,7 @@ class SessionService(
         if (session.classId != classId) throw SessionNotFoundException()
 
         session.status = req.status
+        session.playStartTime = Instant.now().minusMillis(req.currentTime.toLong())
         val saved = sessionRepository.save(session)
         return SessionStatusResponse(
             currentStatus = saved.status,
