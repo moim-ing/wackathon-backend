@@ -8,6 +8,7 @@ import com.wafflestudio.spring2025.domain.sessions.dto.SessionDetailResponse
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionStatusResponse
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionStatusUpdateRequest
 import com.wafflestudio.spring2025.domain.sessions.entity.Session
+import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.domain.user.repository.UserRepository
@@ -46,18 +47,17 @@ class SessionService(
             val prepareReq = ExtractMusicRequest(url = request.videoId)
             val prepareResp = runBlocking { fastApiClient.extractMusic(prepareReq) }
             saved.referenceS3Key = prepareResp.referenceS3Key
-            saved.status = "READY"
+            saved.status = SessionStatus.ACTIVE
             sessionRepository.save(saved)
         } catch (ex: Exception) {
             // mark failed but keep session
-            saved.status = "FAILED"
+            saved.status = SessionStatus.CLOSED
             sessionRepository.save(saved)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to prepare reference: ${ex.message}")
         }
 
         return SessionCreateResponse(
             sessionId = saved.id!!,
-            sessionTitle = "%d주차".format(saved.id),
         )
     }
 
@@ -108,7 +108,6 @@ class SessionService(
         val saved = sessionRepository.save(session)
         return SessionStatusResponse(
             currentStatus = saved.status,
-            updatedAt = LocalDateTime.ofInstant(saved.updatedAt ?: java.time.Instant.EPOCH, ZoneId.of("UTC")),
         )
     }
 }

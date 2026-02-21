@@ -2,11 +2,11 @@ version: "3.8"
 
 services:
   app:
-    image: picokosmos/spring-app:latest
+    image: ${DOCKER_USERNAME}/spring-app:latest
     container_name: spring-app
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8080:8080"
+      - "0.0.0.0:8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wackathon?allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: user

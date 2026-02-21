@@ -10,6 +10,4 @@ data class RegisterRequest(
     val name: String,
     @Schema(description = "비밀번호", example = "password123", required = true)
     val password: String,
-    @Schema(description = "프로필 이미지 URL", example = "https://cdn.example.com/profile.png")
-    val profileImage: String? = null,
 )

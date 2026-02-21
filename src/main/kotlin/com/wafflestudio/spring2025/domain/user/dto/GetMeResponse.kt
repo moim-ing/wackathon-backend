@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.domain.user.dto
 
-import com.wafflestudio.spring2025.domain.user.dto.core.UserDto
-
-typealias GetMeResponse = UserDto
+data class GetMeResponse(
+    val name: String,
+    val email: String,
+)

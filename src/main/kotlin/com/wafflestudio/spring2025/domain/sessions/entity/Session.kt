@@ -17,7 +17,7 @@ class Session(
     var videoId: String,
     @Column("reference_s3_key")
     var referenceS3Key: String? = null,
-    var status: String = "PREPARING",
+    var status: SessionStatus = SessionStatus.ACTIVE,
     @CreatedDate
     @Column("created_at")
     var createdAt: Instant? = null,
@@ -25,3 +25,9 @@ class Session(
     @Column("updated_at")
     var updatedAt: Instant? = null,
 )
+
+enum class SessionStatus {
+    ACTIVE,
+    PAUSED,
+    CLOSED,
+}

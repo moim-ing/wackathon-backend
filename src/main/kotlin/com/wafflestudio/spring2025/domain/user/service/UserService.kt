@@ -3,6 +3,7 @@ package com.wafflestudio.spring2025.domain.user.service
 import com.wafflestudio.spring2025.domain.auth.exception.AuthErrorCode
 import com.wafflestudio.spring2025.domain.auth.exception.AuthValidationException
 import com.wafflestudio.spring2025.domain.auth.exception.AuthenticationRequiredException
+import com.wafflestudio.spring2025.domain.user.dto.GetMeResponse
 import com.wafflestudio.spring2025.domain.user.dto.core.UserDto
 import com.wafflestudio.spring2025.domain.user.exception.EmailChangeForbiddenException
 import com.wafflestudio.spring2025.domain.user.model.User
@@ -14,6 +15,15 @@ import org.springframework.stereotype.Service
 class UserService(
     private val userRepository: UserRepository,
 ) {
+    fun getMe(user: User?): GetMeResponse {
+        if (user == null) throw AuthenticationRequiredException()
+
+        return GetMeResponse(
+            name = user.name,
+            email = user.email,
+        )
+    }
+
     fun me(user: User?): UserDto {
         if (user == null) throw AuthenticationRequiredException()
 
