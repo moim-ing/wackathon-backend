@@ -12,6 +12,7 @@ import com.wafflestudio.spring2025.domain.classes.exception.ClassNotFoundExcepti
 import com.wafflestudio.spring2025.domain.classes.exception.ClassUserNotFoundException
 import com.wafflestudio.spring2025.domain.classes.repository.ClassRepository
 import com.wafflestudio.spring2025.domain.participation.repository.ParticipationRepository
+import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -61,8 +62,9 @@ class ClassService(
                 )
             }
 
-        // current session: pick most recent by createdAt Instant
-        val currentSession = sessionDtos.maxByOrNull { it.createdAt }
+        val currentSession = sessionDtos
+            .filter { it.status != SessionStatus.CLOSED }
+            .maxByOrNull { it.createdAt }
 
         val classInfo =
             ClassInfoResponse(
