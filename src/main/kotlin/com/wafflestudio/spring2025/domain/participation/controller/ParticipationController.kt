@@ -1,38 +1,49 @@
 package com.wafflestudio.spring2025.domain.participation.controller
 
 import com.wafflestudio.spring2025.domain.auth.LoggedInUser
-import com.wafflestudio.spring2025.domain.participation.dto.ParticipationCreateRequest
-import com.wafflestudio.spring2025.domain.participation.dto.ParticipationCreateResponse
+import com.wafflestudio.spring2025.domain.participation.dto.ParticipationVerifyResponse
 import com.wafflestudio.spring2025.domain.participation.service.ParticipationService
 import com.wafflestudio.spring2025.domain.user.model.User
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/participation")
 class ParticipationController(
     private val participationService: ParticipationService,
 ) {
-    @PostMapping
-    fun register(
-        @RequestBody req: ParticipationCreateRequest,
-        @LoggedInUser user: User?,
-    ): ResponseEntity<ParticipationCreateResponse> {
-        // This endpoint structure in spec is a bit different; assume class/session included in request
-        // For now, user should include classId and sessionId in request (but dto not defined)
-        throw UnsupportedOperationException("Use /api/classes/{classId}/sessions/{sessionId}/participants for registration")
-    }
-
-    @PostMapping("/verify")
+    /**
+     * POST /api/participation/verify
+     * Content-Type: multipart/form-data
+     *
+     * form-data:
+     * - sessionId: Long
+     * - audioFile: MultipartFile (녹음 파일)
+     * - recordedAt: Long (epoch millis)
+     * - offsetMilli: Long (ms)  // FastAPI compare에 필요
+     *
+     * (선택) 로그인 사용자라면 @LoggedInUser user로 userId 저장 가능
+     */
+    @PostMapping("/verify", consumes = ["multipart/form-data"])
     fun verify(
-        @RequestParam("audioFile") audioFile: String,
+        @RequestParam("sessionId") sessionId: Long,
+        @RequestParam("audioFile") audioFile: MultipartFile,
         @RequestParam("recordedAt") recordedAt: Long,
-    ): ResponseEntity<Any> {
-        val resp = participationService.verifyAudioAndRespond(audioFile, recordedAt)
+        @RequestParam("offsetMilli") offsetMilli: Long,
+        @LoggedInUser user: User?,
+    ): ResponseEntity<ParticipationVerifyResponse> {
+        val resp =
+            participationService.verifyAttendance(
+                sessionId = sessionId,
+                audioFile = audioFile,
+                recordedAt = recordedAt,
+                offsetMilli = offsetMilli,
+                user = user,
+            )
         return ResponseEntity.ok(resp)
     }
 }
