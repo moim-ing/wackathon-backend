@@ -1,8 +1,9 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
-COPY build.gradle.kts settings.gradle.kts ./
+COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
 COPY src ./src
+RUN chmod +x ./gradlew
 RUN ./gradlew build --no-daemon -x test -x ktlintMainSourceSetCheck -x ktlintTestSourceSetCheck
 
 FROM eclipse-temurin:17-jre
