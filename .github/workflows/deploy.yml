@@ -57,4 +57,10 @@ jobs:
           script: |
             set -e
             cd ~/wackathon-backend
+            cat > .env <<'EOF'
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            EOF
             sh deploy.sh
