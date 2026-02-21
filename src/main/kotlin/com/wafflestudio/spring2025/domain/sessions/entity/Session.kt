@@ -24,6 +24,8 @@ class Session(
     @LastModifiedDate
     @Column("updated_at")
     var updatedAt: Instant? = null,
+    @Column("play_start_time")
+    var playStartTime: Instant? = null,
 )
 
 enum class SessionStatus {

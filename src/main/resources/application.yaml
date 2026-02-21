@@ -10,6 +10,10 @@ spring:
     redis:
       host: localhost
       port: 6379
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 jwt:
   secret: this-is-a-very-long-and-secure-secret-key-for-jwt-token-generation
@@ -44,6 +48,7 @@ server:
 aws:
   region: ap-northeast-2
   s3Bucket: wackathon-audio-dev
+  presign-expire-seconds: 1800
 
 fastapi:
   baseUrl: http://localhost:8000

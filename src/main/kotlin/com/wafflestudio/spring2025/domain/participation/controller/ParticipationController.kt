@@ -3,6 +3,7 @@ package com.wafflestudio.spring2025.domain.participation.controller
 import com.wafflestudio.spring2025.domain.participation.dto.ParticipationVerifyResponse
 import com.wafflestudio.spring2025.domain.participation.service.ParticipationService
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -14,23 +15,20 @@ class ParticipationController(
     private val participationService: ParticipationService,
 ) {
     /**
-     * POST /api/participation/verify
+     * POST /api/participation/verify/{sessionId}
      * Content-Type: multipart/form-data
      *
      * form-data:
-     * - audioFile: String (예: "hHHQ4bNhwjU")  // videoId로 사용
-     * - recordingKey: String // 학생 녹음 s3 key
-     * - offsetMilli: Long // 녹음 시작 시각 오프셋(ms)
+     * - key: String // 학생 녹음 s3 key
      * - recordedAt: Long (epoch millis)
      */
-    @PostMapping("/verify", consumes = ["multipart/form-data"])
+    @PostMapping("/verify/{sessionId}")
     fun verify(
-        @RequestParam("audioFile") audioFile: String,
-        @RequestParam("recordingKey") recordingKey: String,
-        @RequestParam("offsetMilli") offsetMilli: Long,
+        @PathVariable sessionId: Long,
+        @RequestParam("key") key: String,
         @RequestParam("recordedAt") recordedAt: Long,
     ): ResponseEntity<ParticipationVerifyResponse> {
-        val resp = participationService.verify(audioFile, recordingKey, offsetMilli, recordedAt)
+        val resp = participationService.verify(sessionId, key, recordedAt)
         return ResponseEntity.ok(resp)
     }
 }
