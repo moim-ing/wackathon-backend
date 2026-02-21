@@ -1,8 +1,8 @@
 package com.wafflestudio.spring2025.domain.sessions.service
 
+import com.wafflestudio.spring2025.domain.classes.repository.ClassRepository
 import com.wafflestudio.spring2025.domain.participation.dto.ParticipantInfoResponse
 import com.wafflestudio.spring2025.domain.participation.repository.ParticipationRepository
-import com.wafflestudio.spring2025.domain.classes.repository.ClassRepository
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionCreateRequest
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionCreateResponse
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionDetailResponse

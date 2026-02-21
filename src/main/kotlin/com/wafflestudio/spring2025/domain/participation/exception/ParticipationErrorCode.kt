@@ -8,7 +8,6 @@ enum class ParticipationErrorCode(
     override val title: String,
     override val message: String,
 ) : DomainErrorCode {
-
     // 400 Bad Request
     WRONG_GUEST_NAME(
         httpStatusCode = HttpStatus.BAD_REQUEST,
