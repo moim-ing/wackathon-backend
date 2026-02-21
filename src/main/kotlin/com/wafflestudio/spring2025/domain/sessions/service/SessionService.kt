@@ -21,7 +21,6 @@ import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
 import com.wafflestudio.spring2025.integration.fastapi.dto.ExtractMusicRequest
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZoneId

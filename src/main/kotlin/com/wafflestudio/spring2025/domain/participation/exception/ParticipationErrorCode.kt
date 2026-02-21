@@ -24,6 +24,21 @@ enum class ParticipationErrorCode(
         title = "출석 가능 시간이 아닙니다.",
         message = "현재는 출석을 진행할 수 없는 시간입니다.\n출석 가능 시간을 확인해 주세요.",
     ),
+    INVALID_RECORDING_KEY(
+        httpStatusCode = HttpStatus.BAD_REQUEST,
+        title = "녹음 키가 올바르지 않습니다.",
+        message = "유효하지 않은 녹음 키입니다.\n다시 시도해 주세요.",
+    ),
+    INVALID_OFFSET_MILLI(
+        httpStatusCode = HttpStatus.BAD_REQUEST,
+        title = "오프셋 값이 올바르지 않습니다.",
+        message = "유효하지 않은 오프셋 값입니다.\n다시 시도해 주세요.",
+    ),
+    ATTENDANCE_NOT_VERIFIED(
+        httpStatusCode = HttpStatus.BAD_REQUEST,
+        title = "출석이 확인되지 않았습니다.",
+        message = "오디오가 일치하지 않아 출석을 인정할 수 없습니다.",
+    ),
 
     // 403 Forbidden
     BANNED_USER_CANNOT_REGISTER(
@@ -42,5 +57,10 @@ enum class ParticipationErrorCode(
         httpStatusCode = HttpStatus.NOT_FOUND,
         title = "수업을 찾을 수 없습니다.",
         message = "요청한 수업 정보를 찾을 수 없습니다.",
+    ),
+    SOURCE_KEY_NOT_READY(
+        httpStatusCode = HttpStatus.INTERNAL_SERVER_ERROR,
+        title = "세션 소스 키가 준비되지 않았습니다.",
+        message = "세션 음원 준비가 완료되지 않았습니다.\n잠시 후 다시 시도해 주세요.",
     ),
 }
