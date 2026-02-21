@@ -18,7 +18,7 @@ data class ClassDetailResponse(
     @field:JsonProperty("class")
     val clazz: ClassInfoResponse,
     val sessions: List<SessionInfoResponse>,
-    val currentSessions: SessionInfoResponse?,
+    val currentSession: SessionInfoResponse?,
 )
 
 data class ClassInfoResponse(
