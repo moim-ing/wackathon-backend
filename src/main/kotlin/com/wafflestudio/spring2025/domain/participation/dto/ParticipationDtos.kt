@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.domain.participation.dto
 
+import java.time.Instant
 import java.time.LocalDateTime
 
 data class ParticipationCreateRequest(
@@ -23,5 +24,5 @@ data class ParticipationVerifyResponse(
     val sessionId: Long,
     val sessionTitle: String,
     val videoId: String,
-    val verifiedAt: LocalDateTime,
+    val verifiedAt: Instant,
 )
