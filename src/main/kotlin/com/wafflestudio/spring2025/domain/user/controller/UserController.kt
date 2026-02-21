@@ -60,6 +60,5 @@ class UserController(
     @GetMapping("/classes")
     fun myClasses(
         @Parameter(hidden = true) @LoggedInUser user: User,
-    ): ResponseEntity<MyClassesResponse> =
-        ResponseEntity.ok(classService.getMyClasses(userId = user.id!!))
+    ): ResponseEntity<MyClassesResponse> = ResponseEntity.ok(classService.getMyClasses(userId = user.id!!))
 }
