@@ -46,7 +46,7 @@ class ParticipationService(
 
         // 2) referenceS3Key 준비 여부
         val sourceKey =
-            session.referenceS3Key
+            session.sourceKey
                 ?: throw ResponseStatusException(HttpStatus.CONFLICT, "Session reference not ready")
 
         if (session.status != SessionStatus.ACTIVE) {

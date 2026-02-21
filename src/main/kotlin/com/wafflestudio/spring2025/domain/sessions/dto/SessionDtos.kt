@@ -9,7 +9,7 @@ data class SessionCreateRequest(
 
 data class SessionCreateResponse(
     val sessionId: Long,
-    val sourceKey: String, // ✅ 추가
+    val sourceKey: String,
 )
 
 data class SessionDetailResponse(
