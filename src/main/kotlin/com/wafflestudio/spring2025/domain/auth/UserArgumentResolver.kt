@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.domain.auth
 
+import com.wafflestudio.spring2025.domain.auth.exception.AuthenticationRequiredException
 import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.domain.user.repository.UserRepository
 import org.springframework.core.MethodParameter
@@ -23,6 +24,7 @@ class UserArgumentResolver(
         binderFactory: WebDataBinderFactory?,
     ): User? {
         val userId = webRequest.getAttribute("userId", 0) as? Long ?: return null
-        return userRepository.findById(userId).orElse(null)
+        return userRepository.findById(userId)
+            .orElseThrow { AuthenticationRequiredException() }
     }
 }
