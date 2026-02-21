@@ -51,20 +51,15 @@ class SessionService(
         val saved = sessionRepository.save(session)
 
         try {
-            val prepareReq = ExtractMusicRequest(url = request.videoId)
-            val prepareResp = runBlocking { fastApiClient.extractMusic(prepareReq) }
 
             // ⚠️ 여기서 FastAPI 응답 필드명이 "referenceS3Key"인 상태라면 그대로 쓰고,
             // 나중에 FastAPI를 "sourceKey"로 바꾸면 이 줄만 바꾸면 됨.
-            val sourceKeyFromFastApi = prepareResp.referenceS3Key
 
-            saved.sourceKey = sourceKeyFromFastApi // ✅ DB: sessions.source_key 저장
             saved.status = SessionStatus.ACTIVE
             sessionRepository.save(saved)
 
             return SessionCreateResponse(
                 sessionId = saved.id!!,
-                sourceKey = sourceKeyFromFastApi, // ✅ 프론트에 내려줌
             )
         } catch (ex: Exception) {
             logger.error("FastAPI extractMusic failed for sessionId=${saved.id}: ${ex.message}", ex)
