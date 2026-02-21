@@ -33,3 +33,12 @@ data class SessionInfoResponse(
     val createdAt: Instant,
     val totalParticipants: Int,
 )
+
+data class MyClassesResponse(
+    val classes: List<MyClassSummary>,
+)
+
+data class MyClassSummary(
+    val id: Long,
+    val title: String,
+)

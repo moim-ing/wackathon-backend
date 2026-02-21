@@ -4,6 +4,8 @@ import com.wafflestudio.spring2025.domain.classes.dto.ClassCreateRequest
 import com.wafflestudio.spring2025.domain.classes.dto.ClassCreateResponse
 import com.wafflestudio.spring2025.domain.classes.dto.ClassDetailResponse
 import com.wafflestudio.spring2025.domain.classes.dto.ClassInfoResponse
+import com.wafflestudio.spring2025.domain.classes.dto.MyClassSummary
+import com.wafflestudio.spring2025.domain.classes.dto.MyClassesResponse
 import com.wafflestudio.spring2025.domain.classes.dto.SessionInfoResponse
 import com.wafflestudio.spring2025.domain.classes.entity.Class
 import com.wafflestudio.spring2025.domain.classes.repository.ClassRepository
@@ -75,5 +77,25 @@ class ClassService(
             sessions = sessionDtos,
             currentSessions = currentSession,
         )
+    }
+
+    fun getMyClasses(userId: Long): MyClassesResponse {
+        val userExists = userRepository.existsById(userId)
+        if (!userExists) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
+        }
+
+        val classes =
+            classRepository
+                .findByOwnerId(userId)
+                .sortedBy { it.id ?: Long.MAX_VALUE }
+                .map { clazz ->
+                    MyClassSummary(
+                        id = clazz.id!!,
+                        title = clazz.title,
+                    )
+                }
+
+        return MyClassesResponse(classes = classes)
     }
 }
