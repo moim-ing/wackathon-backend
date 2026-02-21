@@ -5,9 +5,11 @@ import com.wafflestudio.spring2025.domain.participation.service.ParticipationSer
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+
+data class VerifyRequest(val key: String, val recordedAt: Long)
 
 @RestController
 @RequestMapping("/api/participation")
@@ -16,19 +18,18 @@ class ParticipationController(
 ) {
     /**
      * POST /api/participation/verify/{sessionId}
-     * Content-Type: multipart/form-data
+     * Content-Type: application/json
      *
-     * form-data:
+     * body:
      * - key: String // 학생 녹음 s3 key
      * - recordedAt: Long (epoch millis)
      */
     @PostMapping("/verify/{sessionId}")
     fun verify(
         @PathVariable sessionId: Long,
-        @RequestParam("key") key: String,
-        @RequestParam("recordedAt") recordedAt: Long,
+        @RequestBody req: VerifyRequest,
     ): ResponseEntity<ParticipationVerifyResponse> {
-        val resp = participationService.verify(sessionId, key, recordedAt)
+        val resp = participationService.verify(sessionId, req.key, req.recordedAt)
         return ResponseEntity.ok(resp)
     }
 }
