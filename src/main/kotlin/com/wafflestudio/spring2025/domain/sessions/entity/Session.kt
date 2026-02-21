@@ -15,8 +15,12 @@ class Session(
     var classId: Long,
     @Column("video_id")
     var videoId: String,
+    // (기존)
     @Column("reference_s3_key")
     var referenceS3Key: String? = null,
+    // ✅ (추가) 추출된 음원 S3 key
+    @Column("source_key")
+    var sourceKey: String? = null,
     var status: SessionStatus = SessionStatus.ACTIVE,
     @CreatedDate
     @Column("created_at")
