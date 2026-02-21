@@ -11,12 +11,10 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import kotlin.math.sign
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,9 +41,9 @@ class AuthController(
         authService.signup(
             email = signupRequest.email,
             name = signupRequest.name,
-            password = signupRequest.password
+            password = signupRequest.password,
         )
-        return ResponseEntity(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 
     @Operation(summary = "로그인", description = "email로 로그인하여 JWT 토큰을 발급받습니다")
@@ -59,7 +57,11 @@ class AuthController(
     fun login(
         @RequestBody loginRequest: LoginRequest,
     ): ResponseEntity<LoginResponse> {
-        val token = authService.login(loginRequest.email, loginRequest.password)
+        val token =
+            authService.login(
+                loginRequest.email,
+                loginRequest.password,
+            )
         return ResponseEntity.ok(LoginResponse(token))
     }
 
