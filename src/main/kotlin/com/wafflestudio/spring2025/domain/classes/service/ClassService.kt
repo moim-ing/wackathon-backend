@@ -53,7 +53,7 @@ class ClassService(
                 val count = participationRepository.countBySessionId(session.id!!)
                 SessionInfoResponse(
                     sessionId = session.id!!,
-                    sessionTitle = "${session.id}", // no explicit title in schema; using id as placeholder
+                    sessionTitle = session.title,
                     videoId = session.videoId,
                     status = session.status,
                     createdAt = session.createdAt ?: java.time.Instant.EPOCH,

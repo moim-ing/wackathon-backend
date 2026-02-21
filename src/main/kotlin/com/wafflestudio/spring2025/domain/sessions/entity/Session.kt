@@ -15,6 +15,8 @@ class Session(
     var classId: Long,
     @Column("video_id")
     var videoId: String,
+    @Column("title")
+    var title: String = "",
     @Column("source_key")
     var sourceKey: String? = null,
     var status: SessionStatus = SessionStatus.ACTIVE,

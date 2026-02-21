@@ -13,14 +13,9 @@ import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import com.wafflestudio.spring2025.domain.sessions.exception.SessionAuthenticationRequiredException
 import com.wafflestudio.spring2025.domain.sessions.exception.SessionClassNotFoundException
 import com.wafflestudio.spring2025.domain.sessions.exception.SessionNotFoundException
-import com.wafflestudio.spring2025.domain.sessions.exception.SessionSourcePrepareFailedException
 import com.wafflestudio.spring2025.domain.sessions.exception.SessionStatusUpdateForbiddenException
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.model.User
-import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
-import com.wafflestudio.spring2025.integration.fastapi.dto.ExtractMusicRequest
-import kotlinx.coroutines.runBlocking
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDateTime
@@ -31,10 +26,7 @@ class SessionService(
     private val sessionRepository: SessionRepository,
     private val participationRepository: ParticipationRepository,
     private val classRepository: ClassRepository,
-    private val fastApiClient: FastApiClient,
 ) {
-    private val logger = LoggerFactory.getLogger(SessionService::class.java)
-
     fun createSession(
         classId: Long,
         request: SessionCreateRequest,
@@ -46,27 +38,15 @@ class SessionService(
             Session(
                 classId = classId,
                 videoId = request.videoId,
+                title = request.sessionTitle,
+                sourceKey = request.videoKey,
                 status = SessionStatus.ACTIVE,
             )
         val saved = sessionRepository.save(session)
 
-        try {
-
-            // ⚠️ 여기서 FastAPI 응답 필드명이 "referenceS3Key"인 상태라면 그대로 쓰고,
-            // 나중에 FastAPI를 "sourceKey"로 바꾸면 이 줄만 바꾸면 됨.
-
-            saved.status = SessionStatus.ACTIVE
-            sessionRepository.save(saved)
-
-            return SessionCreateResponse(
-                sessionId = saved.id!!,
-            )
-        } catch (ex: Exception) {
-            logger.error("FastAPI extractMusic failed for sessionId=${saved.id}: ${ex.message}", ex)
-            saved.status = SessionStatus.CLOSED
-            sessionRepository.save(saved)
-            throw SessionSourcePrepareFailedException(ex)
-        }
+        return SessionCreateResponse(
+            sessionId = saved.id!!,
+        )
     }
 
     fun getSessionDetail(
@@ -89,7 +69,7 @@ class SessionService(
 
         return SessionDetailResponse(
             sessionId = session.id!!,
-            sessionTitle = "%d주차".format(session.id),
+            sessionTitle = session.title,
             videoId = session.videoId,
             status = session.status,
             createdAt = LocalDateTime.ofInstant(session.createdAt ?: java.time.Instant.EPOCH, ZoneId.of("UTC")),
