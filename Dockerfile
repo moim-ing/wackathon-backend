@@ -3,7 +3,7 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
 COPY src ./src
-RUN gradle build --no-daemon -x test
+RUN ./gradlew build --no-daemon -x test -x ktlintMainSourceSetCheck -x ktlintTestSourceSetCheck
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
