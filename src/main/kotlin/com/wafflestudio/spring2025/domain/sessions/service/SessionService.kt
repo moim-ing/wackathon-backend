@@ -38,13 +38,13 @@ class SessionService(
         val session =
             Session(
                 classId = classId,
-                videoUrl = request.videoUrl,
+                videoId = request.videoId,
             )
         val saved = sessionRepository.save(session)
 
         // Prepare reference via FastAPI (synchronous call for MVP)
         try {
-            val prepareReq = ExtractMusicRequest(url = request.videoUrl)
+            val prepareReq = ExtractMusicRequest(url = request.videoId)
             val prepareResp = runBlocking { fastApiClient.extractMusic(prepareReq) }
             saved.referenceS3Key = prepareResp.referenceS3Key
             saved.status = SessionStatus.ACTIVE
@@ -84,7 +84,7 @@ class SessionService(
         return SessionDetailResponse(
             sessionId = session.id!!,
             sessionTitle = "%d주차".format(session.id),
-            videoId = session.videoUrl,
+            videoId = session.videoId,
             status = session.status,
             createdAt = LocalDateTime.ofInstant(session.createdAt ?: java.time.Instant.EPOCH, ZoneId.of("UTC")),
             totalParticipants = participants.size,

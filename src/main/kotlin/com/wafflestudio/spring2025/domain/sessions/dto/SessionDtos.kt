@@ -4,8 +4,7 @@ import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
 import java.time.LocalDateTime
 
 data class SessionCreateRequest(
-    val sessionTitle: String? = null,
-    val videoUrl: String,
+    val videoId: String,
 )
 
 data class SessionCreateResponse(
