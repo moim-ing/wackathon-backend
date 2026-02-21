@@ -10,15 +10,18 @@ import com.wafflestudio.spring2025.domain.sessions.dto.SessionStatusResponse
 import com.wafflestudio.spring2025.domain.sessions.dto.SessionStatusUpdateRequest
 import com.wafflestudio.spring2025.domain.sessions.entity.Session
 import com.wafflestudio.spring2025.domain.sessions.entity.SessionStatus
+import com.wafflestudio.spring2025.domain.sessions.exception.SessionAuthenticationRequiredException
+import com.wafflestudio.spring2025.domain.sessions.exception.SessionClassNotFoundException
+import com.wafflestudio.spring2025.domain.sessions.exception.SessionNotFoundException
+import com.wafflestudio.spring2025.domain.sessions.exception.SessionSourcePrepareFailedException
+import com.wafflestudio.spring2025.domain.sessions.exception.SessionStatusUpdateForbiddenException
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.domain.user.model.User
 import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
 import com.wafflestudio.spring2025.integration.fastapi.dto.ExtractMusicRequest
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -36,7 +39,7 @@ class SessionService(
         request: SessionCreateRequest,
         user: User?,
     ): SessionCreateResponse {
-        if (user == null) throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        if (user == null) throw SessionAuthenticationRequiredException()
 
         val session =
             Session(
@@ -66,10 +69,7 @@ class SessionService(
             logger.error("FastAPI extractMusic failed for sessionId=${saved.id}: ${ex.message}", ex)
             saved.status = SessionStatus.CLOSED
             sessionRepository.save(saved)
-            throw ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Failed to prepare source: ${ex.message}",
-            )
+            throw SessionSourcePrepareFailedException(ex)
         }
     }
 
@@ -78,10 +78,8 @@ class SessionService(
         sessionId: Long,
     ): SessionDetailResponse {
         val session =
-            sessionRepository.findById(sessionId).orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found")
-            }
-        if (session.classId != classId) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found")
+            sessionRepository.findById(sessionId).orElseThrow { SessionNotFoundException() }
+        if (session.classId != classId) throw SessionNotFoundException()
 
         val participants = participationRepository.findBySessionId(sessionId)
         val participantDtos =
@@ -110,20 +108,16 @@ class SessionService(
         req: SessionStatusUpdateRequest,
         user: User?,
     ): SessionStatusResponse {
-        val requesterId = user?.id ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        val requesterId = user?.id ?: throw SessionAuthenticationRequiredException()
         val clazz =
-            classRepository.findById(classId).orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found")
-            }
+            classRepository.findById(classId).orElseThrow { SessionClassNotFoundException() }
         if (clazz.ownerId != requesterId) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Only class owner can update session status")
+            throw SessionStatusUpdateForbiddenException()
         }
 
         val session =
-            sessionRepository.findById(sessionId).orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found")
-            }
-        if (session.classId != classId) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found")
+            sessionRepository.findById(sessionId).orElseThrow { SessionNotFoundException() }
+        if (session.classId != classId) throw SessionNotFoundException()
 
         session.status = req.status
         val saved = sessionRepository.save(session)

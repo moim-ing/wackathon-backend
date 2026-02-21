@@ -22,3 +22,7 @@ class BannedUserCannotRegisterException : ParticipationException(error = Partici
 class SessionNotFoundException : ParticipationException(error = ParticipationErrorCode.SESSION_NOT_FOUND)
 
 class ClassNotFoundException : ParticipationException(error = ParticipationErrorCode.CLASS_NOT_FOUND)
+
+class AttendanceNotVerifiedException : ParticipationException(error = ParticipationErrorCode.ATTENDANCE_NOT_VERIFIED)
+
+class SourceKeyNotReadyException : ParticipationException(error = ParticipationErrorCode.SOURCE_KEY_NOT_READY)

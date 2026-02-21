@@ -19,14 +19,18 @@ class ParticipationController(
      *
      * form-data:
      * - audioFile: String (예: "hHHQ4bNhwjU")  // videoId로 사용
+     * - recordingKey: String // 학생 녹음 s3 key
+     * - offsetMilli: Long // 녹음 시작 시각 오프셋(ms)
      * - recordedAt: Long (epoch millis)
      */
     @PostMapping("/verify", consumes = ["multipart/form-data"])
     fun verify(
         @RequestParam("audioFile") audioFile: String,
+        @RequestParam("recordingKey") recordingKey: String,
+        @RequestParam("offsetMilli") offsetMilli: Long,
         @RequestParam("recordedAt") recordedAt: Long,
     ): ResponseEntity<ParticipationVerifyResponse> {
-        val resp = participationService.verify(audioFile, recordedAt)
+        val resp = participationService.verify(audioFile, recordingKey, offsetMilli, recordedAt)
         return ResponseEntity.ok(resp)
     }
 }
