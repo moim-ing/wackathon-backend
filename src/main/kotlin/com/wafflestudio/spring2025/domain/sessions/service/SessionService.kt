@@ -97,7 +97,7 @@ class SessionService(
         if (session.classId != classId) throw SessionNotFoundException()
 
         session.status = req.status
-        session.playStartTime = Instant.now().minusMillis(req.currentTime.toLong())
+        session.playStartTime = Instant.now().minusMillis(req.currentTime.toLong() * 1000)
         val saved = sessionRepository.save(session)
         return SessionStatusResponse(
             currentStatus = saved.status,
