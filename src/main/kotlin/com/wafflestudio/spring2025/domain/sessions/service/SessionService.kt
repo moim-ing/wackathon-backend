@@ -41,6 +41,7 @@ class SessionService(
                 title = request.sessionTitle,
                 sourceKey = request.videoKey,
                 status = SessionStatus.ACTIVE,
+                playStartTime = Instant.now(),
             )
         val saved = sessionRepository.save(session)
 
