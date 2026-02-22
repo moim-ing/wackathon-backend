@@ -25,7 +25,7 @@ class UserArgumentResolver(
         binderFactory: WebDataBinderFactory?,
     ): User? {
         val userId = webRequest.getAttribute("userId", 0) as? Long ?: return null
-        val kotlinParam = parameter.kotlinFunction?.parameters
+        val kotlinParam = parameter.method?.kotlinFunction?.parameters
             ?.getOrNull(parameter.parameterIndex + 1)
         val isNullable = kotlinParam?.type?.isMarkedNullable == true
         return if (isNullable) {
