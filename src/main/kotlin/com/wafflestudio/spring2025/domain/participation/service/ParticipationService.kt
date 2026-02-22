@@ -10,6 +10,7 @@ import com.wafflestudio.spring2025.domain.participation.exception.SessionNotFoun
 import com.wafflestudio.spring2025.domain.participation.exception.SourceKeyNotReadyException
 import com.wafflestudio.spring2025.domain.sessions.repository.SessionRepository
 import com.wafflestudio.spring2025.integration.fastapi.FastApiClient
+import com.wafflestudio.spring2025.integration.fastapi.FastApiException
 import com.wafflestudio.spring2025.integration.fastapi.dto.CompareRequest
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -51,20 +52,24 @@ class ParticipationService(
 
         val sourceKey = session.sourceKey ?: throw SourceKeyNotReadyException()
 
-        if (session.playStartTime == null) {
-            logger.warn("sessionId=${session.id} has no playStartTime; offsetMilli will be calculated from epoch 0")
-        }
-        val offsetMilli = recordedAt - (session.playStartTime?.toEpochMilli() ?: 0L)
+        val playStartTime = session.playStartTime
+            ?: throw ParticipationValidationException(ParticipationErrorCode.INVALID_REGISTRATION_WINDOW)
+        val offsetMilli = (recordedAt - playStartTime.toEpochMilli()).coerceAtLeast(0L)
 
         val compareResp =
             runBlocking {
-                fastApiClient.compare(
-                    CompareRequest(
-                        source_key = sourceKey,
-                        recording_key = key,
-                        offset_milli = offsetMilli,
-                    ),
-                )
+                try {
+                    fastApiClient.compare(
+                        CompareRequest(
+                            source_key = sourceKey,
+                            recording_key = key,
+                            offset_milli = offsetMilli,
+                        ),
+                    )
+                } catch (e: FastApiException) {
+                    logger.error("FastAPI compare failed: status=${e.statusCode} body=${e.responseBody}")
+                    throw AttendanceNotVerifiedException()
+                }
             }
 
         if (!compareResp.result) {
